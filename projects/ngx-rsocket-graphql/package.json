@@ -1,6 +1,14 @@
 {
   "name": "ngx-rsocket-graphql",
   "version": "0.0.13",
+  "author": "madwind",
+  "description": "angular rsocket & graphql service",
+  "keywords": ["angular", "rsocket", "graphql"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/madwind/ngx-rsocket-graphql"
+  },
+  "license": "MIT",
   "peerDependencies": {
     "@angular/common": "^17.1.0",
     "@angular/core": "^17.1.0",
