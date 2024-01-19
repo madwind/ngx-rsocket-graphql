@@ -17,6 +17,7 @@ jobs:
       - 
         working-directory: ./projects/ngx-rsocket-graphql
         run: npm ci
+      - run: npm ci
       - run: npm run build
       -
         working-directory: ./dist/ngx-rsocket-graphql
