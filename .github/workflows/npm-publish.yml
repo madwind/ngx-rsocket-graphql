@@ -14,7 +14,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: cd projects/ngx-rsocket-graphql
+      - run: cd projects
       - run: ls
       - run: npm ci
       - run: npm run build
