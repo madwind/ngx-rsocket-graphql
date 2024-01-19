@@ -14,7 +14,7 @@ jobs:
         with:
           node-version: 20
       - run: cd projects/ngx-rsocket-graphql
-      - run: npm i
+      - run: npm ci
 
   publish-npm:
     needs: build
@@ -26,7 +26,8 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pwd
-      - run: npm i
+      - run: ls
+      - run: npm ci
       - run: npm run build
       - run: cd dist/ngx-rsocket-graphql
       - run: npm publish
