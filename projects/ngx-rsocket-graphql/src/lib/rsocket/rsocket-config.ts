@@ -12,72 +12,71 @@ import {Buffer} from "buffer";
 
 export class RsocketConfig {
   private config: ConnectorConfig = {} as ConnectorConfig
-  private payloadData: unknown = undefined
-  private payloadDAuth: Auth | undefined = undefined
-  private _url = 'ws://localhost:8080/rs'
-
+  private setupRoute = 'setup'
+  private url
 
   constructor(url: string) {
-    this._url = url;
+    this.url = url;
   }
 
-  setup(setup: ConnectorConfig['setup']) {
-    this.config['setup'] = setup
-    return this
+  setup(setup?: Omit<ConnectorConfig['setup'], 'payload'>) {
+    this.config['setup'] = setup ? setup : {}
+    return {payload: this.payload}
   }
 
-  data(data: unknown) {
-    return this.payload(data, this.payloadDAuth)
-  }
-
-  auth(auth?: Auth) {
-    return this.payload(this.payloadData, auth)
-  }
-
-  payload(data: unknown, auth?: Auth, route = 'setup') {
-    this.payloadData = data
-    this.payloadDAuth = auth
+  private payload(data?: unknown) {
     if (!this.config.setup) {
-      throw Error('payload() must after setup()')
+      throw Error('config lost attr: setup')
     }
-    this.config.setup['payload'] = {
-      data: data ? Buffer.from(JSON.stringify(data)) : undefined,
-      metadata: this.buildAuthMetadata({route, auth})
+    this.config.setup.payload = {
+      data: data ? Buffer.from(JSON.stringify(data)) : undefined
     }
-    return this
+    return {route: this.route}
   }
 
-  fragmentation(fragmentation: ConnectorConfig['fragmentation']) {
-    this.config['fragmentation'] = fragmentation
-    return this
+  private route(route: string) {
+    if (!this.config.setup?.payload) {
+      throw Error('lost attr: payload')
+    }
+    this.setupRoute = route
+    this.config.setup.payload['metadata'] = this.buildAuthMetadata({route: this.setupRoute})
+    return {auth: this.auth}
   }
 
-  url(url: string) {
-    this._url = url
-    return this
+  private auth(auth?: Auth) {
+    if (!this.config.setup?.payload?.metadata) {
+      throw Error('lost attr: config.setup.payload.metadata')
+    }
+    this.config.setup.payload.metadata = this.buildAuthMetadata({route: this.setupRoute, auth})
+    return {responder: this.responder}
   }
 
-  getUrl() {
-    return this._url
+
+  private fragmentation(fragmentation?: ConnectorConfig['fragmentation']) {
+    if (fragmentation) {
+      this.config['fragmentation'] = fragmentation
+    }
+    return {responder: this.responder}
   }
 
-  // transport(transport: ConnectorConfig['transport']) {
-  //     this.config['transport'] = transport
-  //     return this
-  // }
-
-  responder(responder: ConnectorConfig['responder']) {
-    this.config['responder'] = responder
-    return this
+  private responder(responder?: ConnectorConfig['responder']) {
+    if (responder) {
+      this.config['responder'] = responder
+    }
+    return {lease: this.lease}
   }
 
-  lease(lease: ConnectorConfig['lease']) {
-    this.config['lease'] = lease
-    return this
+  private lease(lease?: ConnectorConfig['lease']) {
+    if (lease) {
+      this.config['lease'] = lease
+    }
+    return {resume: this.resume}
   }
 
-  resume(resume: ConnectorConfig['resume']) {
-    this.config['resume'] = resume
+  private resume(resume?: ConnectorConfig['resume']): RsocketConfig {
+    if (resume) {
+      this.config['resume'] = resume
+    }
     return this
   }
 
@@ -95,7 +94,15 @@ export class RsocketConfig {
     return encodeCompositeMetadata(map)
   }
 
-  build() {
+  getUrl() {
+    return this.url
+  }
+
+  setAuth(auth: Auth) {
+    this.auth(auth)
+  }
+
+  getConfig() {
     return this.config
   }
 }

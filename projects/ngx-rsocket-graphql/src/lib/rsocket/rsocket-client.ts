@@ -19,7 +19,7 @@ export class RsocketClient {
   private _error = new ReplaySubject<Error>(1)
   private _connectionStatus = new BehaviorSubject(ConnectionStatus.DISCONNECTED)
   private _networkStatus = new BehaviorSubject(NetWorkStatus.IDLE)
-  private _config: RsocketConfig | undefined = undefined
+  private rsocketConfig: RsocketConfig | undefined = undefined
 
   connect() {
     this._connectionStatus.pipe(first()).subscribe(connectionStatus => {
@@ -27,13 +27,12 @@ export class RsocketClient {
         return
       }
       this._connectionStatus.next(ConnectionStatus.CONNECTING)
-
-      if (!this._config) {
+      if (!this.rsocketConfig) {
         throw new Error("rsocketConfig config is null")
       }
-      const config = this._config.build()
+      const config = this.rsocketConfig.getConfig()
       config['transport'] = new WebsocketClientTransport({
-        url: this._config.getUrl(),
+        url: this.rsocketConfig.getUrl(),
         wsCreator: (url) => rsocketCreator(url, {
           onSend: () => this._networkStatus.next(NetWorkStatus.UPLOADING),
           onMessage: () => this._networkStatus.next(NetWorkStatus.DOWNLOADING)
@@ -49,9 +48,10 @@ export class RsocketClient {
             const rsocketError = error as RSocketError
             if (rsocketError) {
               this._error.next(rsocketError)
-              this._connectionStatus.next(ConnectionStatus.DISCONNECTED)
               if (rsocketError.code === ErrorCodes.REJECTED_SETUP) {
                 this._connectionStatus.next(ConnectionStatus.REJECT)
+              } else {
+                this._connectionStatus.next(ConnectionStatus.DISCONNECTED)
               }
             }
           })
@@ -131,15 +131,11 @@ export class RsocketClient {
     return this._error.asObservable()
   }
 
-  set config(rsocketConfig: RsocketConfig) {
-    this._config = rsocketConfig
+  setRsocketConfig(rsocketConfig: RsocketConfig) {
+    this.rsocketConfig = rsocketConfig
   }
-
-  get config() {
-    if (!this._config) {
-      throw new Error("rsocketConfig config is null")
-    }
-    return this._config
+  getRsocketConfig() {
+    return this.rsocketConfig
   }
 
   get connectionStatus() {

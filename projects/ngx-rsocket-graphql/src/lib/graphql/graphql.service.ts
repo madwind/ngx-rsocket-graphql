@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Inject, inject, Injectable} from '@angular/core';
 
 import {RsocketService} from "../rsocket/rsocket.service";
 import {GraphqlClient} from "./graphql-client";
@@ -9,8 +9,9 @@ import {MutationDocumentNode, QueryDocumentNode, SubscriptionDocumentNode} from 
 })
 export class GraphqlService {
   private _graphqlClient: GraphqlClient = {} as any
+  private rsocketService = inject(RsocketService)
 
-  constructor(private rsocketService: RsocketService) {
+  constructor() {
     this._graphqlClient = new GraphqlClient(this.rsocketService.rsocketClient, 'graphql')
   }
 

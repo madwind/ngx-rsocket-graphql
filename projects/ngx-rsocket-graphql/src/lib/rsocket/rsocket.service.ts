@@ -35,11 +35,11 @@ export class RsocketService {
   }
 
   setConfig(config: RsocketConfig) {
-    this.rsocketClient.config = config
+    this.rsocketClient.setRsocketConfig(config)
   }
 
   setAuth(auth: Auth) {
-    this.rsocketClient.config = this.rsocketClient.config.auth(auth)
+    this.rsocketClient.getRsocketConfig()?.setAuth(auth)
   }
 
   setConnected() {

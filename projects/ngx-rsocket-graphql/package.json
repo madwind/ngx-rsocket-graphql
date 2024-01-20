@@ -1,6 +1,6 @@
 {
   "name": "ngx-rsocket-graphql",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "author": "madwind",
   "description": "angular rsocket & graphql service",
   "keywords": ["angular", "rsocket", "graphql"],
