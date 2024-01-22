@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {RsocketClient} from "./rsocket-client";
 import {RsocketConfig} from "./rsocket-config";
-import {Auth, ChannelParam, ConnectionStatus, FireAndForgotParam} from "./rsocket.type";
+import {Auth, ChannelParam, FireAndForgotParam} from "./rsocket.type";
 
 
 @Injectable({
@@ -39,16 +39,14 @@ export class RsocketService {
   }
 
   setAuth(auth: Auth) {
-    this.rsocketClient.getRsocketConfig()?.setAuth(auth)
+    this.rsocketClient.setAuth(auth)
   }
 
   setConnected() {
-    this.rsocketClient.connectionStatus.next(ConnectionStatus.CONNECTED)
+    this.rsocketClient.setConnected()
   }
 
-  error() {
+  get error() {
     return this.rsocketClient.error
   }
-
-
 }

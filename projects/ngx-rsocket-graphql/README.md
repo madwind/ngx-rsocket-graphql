@@ -2,23 +2,95 @@
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.0.
 
-## Code scaffolding
+## connect
 
-Run `ng generate component component-name --project ngx-rsocket-graphql` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-rsocket-graphql`.
-> Note: Don't forget to add `--project ngx-rsocket-graphql` or else it will be added to the default project in your `angular.json` file. 
+```typescript
+import {RsocketConfig, RsocketService} from "ngx-rsocket-graphql";
 
-## Build
+export class AuthService {
+  private rsocketService = inject(RsocketService)
 
-Run `ng build ngx-rsocket-graphql` to build the project. The build artifacts will be stored in the `dist/` directory.
+  constructor() {
+    const config = new RsocketConfig(
+      //url
+      'ws://localhost:8080/rs',
+      //route
+      'setup',
+      //rsocket connector config(without transport) 
+      {
+        setup: {
+          metadataMimeType: WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.string,
+          dataMimeType: WellKnownMimeType.APPLICATION_JSON.string,
+          keepAlive: 60000
+        },
+        responder: {
+          fireAndForget(payload: Payload, responderStream: OnTerminalSubscriber): Cancellable {
+            handleFireAndForget(payload)
+            return {
+              cancel: () => {
+              }
+            }
+          }
+        },
+        resume: {
+          tokenGenerator: () => Buffer.from(nanoid()),
+          reconnectFunction: (a) =>
+            new Promise((r) => {
+              setTimeout(r, 2000, 100)
+            }),
+        }
+      }
+    )
+      // setup.payload
+      .payload({
+        auth: {
+          simple:
+            {username: "username", password: "password"}
+        }
+      })
+    // route 'setup' on server send a data to 'token' when authenticated
+    registerRoute<string>({
+      route: 'token',
+      type: 'string',
+      handle: (data) => {
+        this.rsocketService.setConnected()
+        const token = String(data)
+      },
+    })
 
-## Publishing
+    this.rsocketService.setConfig(config)
+    this.rsocketService.connect()
+  }
+}
+```
+## graphql query
+```typescript
+export class UserService {
+  constructor(private graphqlService: GraphqlService,) {
+    //query
+    const me = createQuery<User>(gql`
+      query me{
+        me {
+          id
+          name
+          subscribes
+        }
+      }`, 'me')
+    this.graphqlService.query(me).subscribe(user => {
+      console.log(user)
+    })
 
-After building your library with `ng build ngx-rsocket-graphql`, go to the dist folder `cd dist/ngx-rsocket-graphql` and run `npm publish`.
+    //mutation
+    const removeUser = (variables: { id: string }) => createMutation<OperationResult>(gql`
+      mutation removeUser($id: ID) {
+        removeUser(id: $id)
+      }`,
+      'removeUser',
+      variables)
+    return this.graphqlService.mutation(removeUser({id: "001"})).subscribe(operationResult => {
+      console.log(operationResult)
+    })
+  }
+}
+```
 
-## Running unit tests
-
-Run `ng test ngx-rsocket-graphql` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.

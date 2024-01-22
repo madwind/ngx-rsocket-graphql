@@ -32,7 +32,7 @@ function mapMetaData(metadata: any) {
 }
 
 
-export function registerRoute<T>({route, handle, type = 'json'}: RouteHandle<T>) {
+export function registerRoute<T>({route, type = 'json', handle}: RouteHandle<T>) {
   switch (type) {
     case 'string':
       routeHandleMap.set(route, (payload: Payload) => handle(payload.data?.toString() as T))

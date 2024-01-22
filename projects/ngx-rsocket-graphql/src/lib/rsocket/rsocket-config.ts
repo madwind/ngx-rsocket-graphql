@@ -10,75 +10,37 @@ import {
 import {Auth} from "./rsocket.type";
 import {Buffer} from "buffer";
 
+
 export class RsocketConfig {
-  private config: ConnectorConfig = {} as ConnectorConfig
-  private setupRoute = 'setup'
-  private url
+  private config: ConnectorConfig
+  private route: string
+  private url: string
 
-  constructor(url: string) {
+  constructor(url: string, route = 'route', config: Omit<ConnectorConfig, 'transport'> = {}) {
     this.url = url;
+    this.route = route
+    this.config = config as ConnectorConfig
+    this.payload({})
   }
 
-  setup(setup?: Omit<ConnectorConfig['setup'], 'payload'>) {
-    this.config['setup'] = setup ? setup : {}
-    return {payload: this.payload}
-  }
-
-  private payload(data?: unknown) {
+  payload({data, auth}: { data?: unknown, auth?: Auth }) {
     if (!this.config.setup) {
-      throw Error('config lost attr: setup')
+      this.config['setup'] = {}
     }
-    this.config.setup.payload = {
-      data: data ? Buffer.from(JSON.stringify(data)) : undefined
-    }
-    return {route: this.route}
-  }
-
-  private route(route: string) {
-    if (!this.config.setup?.payload) {
-      throw Error('lost attr: payload')
-    }
-    this.setupRoute = route
-    this.config.setup.payload['metadata'] = this.buildAuthMetadata({route: this.setupRoute})
-    return {auth: this.auth}
-  }
-
-  private auth(auth?: Auth) {
-    if (!this.config.setup?.payload?.metadata) {
-      throw Error('lost attr: config.setup.payload.metadata')
-    }
-    this.config.setup.payload.metadata = this.buildAuthMetadata({route: this.setupRoute, auth})
-    return {responder: this.responder}
-  }
-
-
-  private fragmentation(fragmentation?: ConnectorConfig['fragmentation']) {
-    if (fragmentation) {
-      this.config['fragmentation'] = fragmentation
-    }
-    return {responder: this.responder}
-  }
-
-  private responder(responder?: ConnectorConfig['responder']) {
-    if (responder) {
-      this.config['responder'] = responder
-    }
-    return {lease: this.lease}
-  }
-
-  private lease(lease?: ConnectorConfig['lease']) {
-    if (lease) {
-      this.config['lease'] = lease
-    }
-    return {resume: this.resume}
-  }
-
-  private resume(resume?: ConnectorConfig['resume']): RsocketConfig {
-    if (resume) {
-      this.config['resume'] = resume
+    this.config.setup['payload'] = {
+      data: data ? Buffer.from(JSON.stringify(data)) : undefined,
+      metadata: this.buildAuthMetadata({route: this.route, auth})
     }
     return this
   }
+
+  setAuth(auth: Auth) {
+    if (!this.config.setup?.payload?.metadata) {
+      throw new Error('must be call payload first')
+    }
+    this.config.setup.payload.metadata = this.buildAuthMetadata({route: this.route, auth})
+  }
+
 
   private buildAuthMetadata({route, auth}: { route: string, auth?: Auth }) {
     const map = new Map<WellKnownMimeType, Buffer>();
@@ -96,10 +58,6 @@ export class RsocketConfig {
 
   getUrl() {
     return this.url
-  }
-
-  setAuth(auth: Auth) {
-    this.auth(auth)
   }
 
   getConfig() {

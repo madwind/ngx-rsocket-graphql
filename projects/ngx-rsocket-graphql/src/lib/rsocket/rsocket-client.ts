@@ -4,6 +4,7 @@ import {encodeAndAddWellKnownMetadata, encodeRoute, WellKnownMimeType} from "rso
 import {RsocketConfig} from "./rsocket-config";
 import {WebsocketClientTransport} from "rsocket-websocket-client";
 import {
+  Auth,
   ChannelParam,
   ConnectionStatus,
   FireAndForgotParam,
@@ -35,7 +36,12 @@ export class RsocketClient {
         url: this.rsocketConfig.getUrl(),
         wsCreator: (url) => rsocketCreator(url, {
           onSend: () => this._networkStatus.next(NetWorkStatus.UPLOADING),
-          onMessage: () => this._networkStatus.next(NetWorkStatus.DOWNLOADING)
+          onMessage: () => this._networkStatus.next(NetWorkStatus.DOWNLOADING),
+          onResumeOk: () => {
+            if (this._connectionStatus.getValue() !== ConnectionStatus.CONNECTED) {
+              this._connectionStatus.next(ConnectionStatus.CONNECTED)
+            }
+          }
         })
       })
       const connector = new RSocketConnector(config)
@@ -46,6 +52,7 @@ export class RsocketClient {
           console.log('Connected to RSocket server');
           rsocketClient.onClose(error => {
             const rsocketError = error as RSocketError
+            console.log(rsocketError)
             if (rsocketError) {
               this._error.next(rsocketError)
               if (rsocketError.code === ErrorCodes.REJECTED_SETUP) {
@@ -81,7 +88,6 @@ export class RsocketClient {
   }
 
   fireAndForget({payload}: FireAndForgotParam) {
-    this._networkStatus.next(NetWorkStatus.UPLOADING)
     this._rsocketClient.pipe(
       map(rSocket =>
         rSocket.fireAndForget(this.encodePayload(payload), {
@@ -134,12 +140,9 @@ export class RsocketClient {
   setRsocketConfig(rsocketConfig: RsocketConfig) {
     this.rsocketConfig = rsocketConfig
   }
-  getRsocketConfig() {
-    return this.rsocketConfig
-  }
 
   get connectionStatus() {
-    return this._connectionStatus
+    return this._connectionStatus.asObservable()
   }
 
   updateNetworkState(state: NetWorkStatus) {
@@ -150,4 +153,14 @@ export class RsocketClient {
     return this._networkStatus.asObservable()
   }
 
+  setConnected() {
+    this._connectionStatus.next(ConnectionStatus.CONNECTED)
+  }
+
+  setAuth(auth: Auth) {
+    if (!this.rsocketConfig) {
+      throw new Error("rsocketConfig is undefined.")
+    }
+    this.rsocketConfig.setAuth(auth)
+  }
 }

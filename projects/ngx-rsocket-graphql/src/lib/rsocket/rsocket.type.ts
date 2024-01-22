@@ -1,11 +1,4 @@
-import {
-  Cancellable,
-  OnExtensionSubscriber,
-  OnNextSubscriber,
-  OnTerminalSubscriber,
-  Requestable,
-  RSocketError
-} from "rsocket-core";
+import {Cancellable, OnExtensionSubscriber, OnNextSubscriber, OnTerminalSubscriber, Requestable} from "rsocket-core";
 
 export enum ConnectionStatus {
   DISCONNECTED,
@@ -19,12 +12,6 @@ export enum NetWorkStatus {
   UPLOADING,
   DOWNLOADING,
   DONE,
-}
-
-interface ResumableTransportOption {
-  url: string
-  resumeToken: string
-  reconnectIntervalMillis?: number
 }
 
 export interface Auth {
@@ -62,21 +49,4 @@ export interface ChannelParam {
   initialRequestN: number
   isCompleted: boolean
   responderStream: OnTerminalSubscriber & OnNextSubscriber & OnExtensionSubscriber & Requestable & Cancellable
-}
-
-export interface ConnectConfig extends ResumableTransportOption {
-  route: string
-  dataMimeType?: string
-  metadataMimeType?: string
-  keepAlive?: number
-  lifetime?: number
-  data?: unknown
-  auth?: Auth
-  authHandlers?: {
-    tokenHandler: {
-      route: string
-      handle: (token: string) => void
-    },
-    errorHandler: (error: RSocketError) => void
-  }
 }
