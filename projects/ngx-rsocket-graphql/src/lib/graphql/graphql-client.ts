@@ -32,7 +32,7 @@ export class GraphqlClient {
         onExtension(extendedType: number, content: Buffer | null | undefined, canBeIgnored: boolean) {
         }
       }
-    }).pipe(switchMap(() => result), first())
+    }).pipe(switchMap(() => result))
   }
 
   subscription<T>(subscription: SubscriptionDocumentNode<T>): Observable<GraphqlSubscribe<T>> {
@@ -58,7 +58,7 @@ export class GraphqlClient {
       }
     }).pipe(map(requester => {
       return {result, requester, isCompleted, error}
-    }), first())
+    }))
   }
 
   mutation<T>(mutation: MutationDocumentNode<T>) {

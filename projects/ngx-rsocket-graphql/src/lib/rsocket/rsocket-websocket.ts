@@ -11,7 +11,6 @@ let websocket: WebSocket
 
 export const rsocketCreator = (url: string | URL, {onSend, onMessage, onResumeOk, onResumeReject}: Listener) => {
   websocket?.close()
-
   websocket = new WebSocket(url)
   const originalSend = websocket.send
   let resumeTimeout: number
@@ -36,6 +35,7 @@ export const rsocketCreator = (url: string | URL, {onSend, onMessage, onResumeOk
     const buffer = Buffer.from(message.data);
     let frame = deserializeFrame(buffer);
     if (frame.type === FrameTypes.ERROR && frame.code === ErrorCodes.REJECTED_RESUME) {
+      window.clearTimeout(resumeTimeout)
       onResumeReject()
     }
     if (frame.type === FrameTypes.RESUME_OK) {
