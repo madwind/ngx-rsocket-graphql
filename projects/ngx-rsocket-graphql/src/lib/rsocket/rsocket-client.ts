@@ -41,14 +41,16 @@ export class RsocketClient {
             if (this._connectionStatus.getValue() !== ConnectionStatus.CONNECTED) {
               this._connectionStatus.next(ConnectionStatus.CONNECTED)
             }
+          },
+          onResumeReject: () => {
+            connector()
           }
         })
       })
-      const connector = new RSocketConnector(config)
-      defer(() => connector.connect()).pipe(
+      const connector = () => defer(() => new RSocketConnector(config).connect()).pipe(
         retry({delay: 2000})
       ).subscribe({
-        next: (rsocketClient) => {
+        next: (rsocketClient: RSocket) => {
           console.log('Connected to RSocket server');
           rsocketClient.onClose(error => {
             const rsocketError = error as RSocketError
@@ -64,10 +66,11 @@ export class RsocketClient {
           })
           this._rsocketClient.next(rsocketClient)
         },
-        error: error => {
+        error: (error: Error) => {
           console.error('Failed to connect to RSocket server', error)
         }
       })
+      connector()
     })
 
   }
