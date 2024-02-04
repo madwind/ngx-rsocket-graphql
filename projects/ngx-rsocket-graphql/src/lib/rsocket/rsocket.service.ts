@@ -30,7 +30,7 @@ export class RsocketService {
     this.rsocketClient.fireAndForget(payload)
   }
 
-  requestChannel(params: ChannelParam) {
+  requestChannel<T>(params: ChannelParam<T>) {
     return this.rsocketClient.requestChannel(params)
   }
 

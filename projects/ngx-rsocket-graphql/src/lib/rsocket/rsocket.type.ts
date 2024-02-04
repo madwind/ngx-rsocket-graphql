@@ -22,9 +22,9 @@ export interface Auth {
   }
 }
 
-export interface RawPayload {
+export interface RawPayload<T = any> {
   route: string
-  data?: any
+  data?: T
   encodeData?: boolean
 }
 
@@ -44,8 +44,8 @@ export interface StreamParam {
   responderStream: OnTerminalSubscriber & OnNextSubscriber & OnExtensionSubscriber
 }
 
-export interface ChannelParam {
-  payload: RawPayload
+export interface ChannelParam<T> {
+  payload: RawPayload<T>
   initialRequestN: number
   isCompleted: boolean
   responderStream: OnTerminalSubscriber & OnNextSubscriber & OnExtensionSubscriber & Requestable & Cancellable

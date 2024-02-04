@@ -32,7 +32,7 @@ export class GraphqlClient {
         onExtension(extendedType: number, content: Buffer | null | undefined, canBeIgnored: boolean) {
         }
       }
-    }).pipe(switchMap(() => result))
+    }).pipe(first(), switchMap(() => result))
   }
 
   subscription<T>(subscription: SubscriptionDocumentNode<T>): Observable<GraphqlSubscribe<T>> {
@@ -79,6 +79,6 @@ export class GraphqlClient {
         onExtension(extendedType: number, content: Buffer | null | undefined, canBeIgnored: boolean) {
         }
       }
-    }).pipe(switchMap(() => result), first())
+    }).pipe(first(), switchMap(() => result), first())
   }
 }

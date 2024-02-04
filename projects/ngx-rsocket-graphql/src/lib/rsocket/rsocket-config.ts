@@ -16,7 +16,7 @@ export class RsocketConfig {
   private route: string
   private url: string
 
-  constructor(url: string, route = 'route', config: Omit<ConnectorConfig, 'transport'> = {}) {
+  constructor(url: string, route = 'route', config: Omit<ConnectorConfig, 'transport' | 'resume'> = {}) {
     this.url = url;
     this.route = route
     this.config = config as ConnectorConfig

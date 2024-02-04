@@ -5,16 +5,23 @@ type Listener = {
   onMessage: () => void
   onResumeOk: () => void
   onResumeReject: () => void
+  onRejectSetup: () => void
 }
 
 let websocket: WebSocket
 
-export const rsocketCreator = (url: string | URL, {onSend, onMessage, onResumeOk, onResumeReject}: Listener) => {
+export const rsocketCreator = (url: string | URL, {
+  onSend,
+  onMessage,
+  onResumeOk,
+  onRejectSetup,
+  onResumeReject
+}: Listener) => {
   websocket?.close()
   websocket = new WebSocket(url)
   const originalSend = websocket.send
   let resumeTimeout: number
-
+  console.log('new')
   websocket.send = (data) => {
     //@ts-ignore
     let frame = deserializeFrame(data);
@@ -34,13 +41,25 @@ export const rsocketCreator = (url: string | URL, {onSend, onMessage, onResumeOk
   function onFirstMessage(message: MessageEvent) {
     const buffer = Buffer.from(message.data);
     let frame = deserializeFrame(buffer);
-    if (frame.type === FrameTypes.ERROR && frame.code === ErrorCodes.REJECTED_RESUME) {
-      window.clearTimeout(resumeTimeout)
-      onResumeReject()
-    }
-    if (frame.type === FrameTypes.RESUME_OK) {
-      window.clearTimeout(resumeTimeout)
-      onResumeOk()
+    switch (frame.type) {
+      case FrameTypes.ERROR:
+        switch (frame.code) {
+          case ErrorCodes.REJECTED_SETUP:
+            window.clearTimeout(resumeTimeout)
+            console.log('reject_setup')
+            onRejectSetup()
+            break
+          case ErrorCodes.REJECTED_RESUME:
+            window.clearTimeout(resumeTimeout)
+            onResumeReject()
+            break
+        }
+        break;
+      case FrameTypes.RESUME_OK:
+        window.clearTimeout(resumeTimeout)
+        onResumeOk()
+        break
+
     }
     websocket.removeEventListener('message', onFirstMessage)
   }

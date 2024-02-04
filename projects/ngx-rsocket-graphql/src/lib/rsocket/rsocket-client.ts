@@ -14,6 +14,7 @@ import {
   StreamParam
 } from "./rsocket.type";
 import {rsocketCreator} from "./rsocket-websocket";
+import {nanoid} from "./nanoid";
 
 export class RsocketClient {
   private _rsocketClient = new ReplaySubject<RSocket>(1);
@@ -32,18 +33,35 @@ export class RsocketClient {
         throw new Error("rsocketConfig config is null")
       }
       const config = this.rsocketConfig.getConfig()
+      let isRejectSetup = false
+      config['resume'] = {
+        tokenGenerator: () => Buffer.from(nanoid()),
+        reconnectFunction: (a) =>
+          new Promise((resolve, reject) => {
+            if (isRejectSetup) {
+              reject()
+            }
+            console.log(`resume: delay ${2000}`)
+            setTimeout(resolve, 2000, 100)
+          }),
+      }
       config['transport'] = new WebsocketClientTransport({
         url: this.rsocketConfig.getUrl(),
         wsCreator: (url) => rsocketCreator(url, {
           onSend: () => this._networkStatus.next(NetWorkStatus.UPLOADING),
           onMessage: () => this._networkStatus.next(NetWorkStatus.DOWNLOADING),
           onResumeOk: () => {
+            isRejectSetup = false
             if (this._connectionStatus.getValue() !== ConnectionStatus.CONNECTED) {
               this._connectionStatus.next(ConnectionStatus.CONNECTED)
             }
           },
           onResumeReject: () => {
+            isRejectSetup = false
             connector()
+          },
+          onRejectSetup: () => {
+            isRejectSetup = true
           }
         })
       })
@@ -126,7 +144,7 @@ export class RsocketClient {
   }
 
 
-  requestChannel({payload, initialRequestN, isCompleted, responderStream}: ChannelParam) {
+  requestChannel<T>({payload, initialRequestN, isCompleted, responderStream}: ChannelParam<T>) {
     return this._rsocketClient.pipe(
       map(rSocket =>
         rSocket.requestChannel(this.encodePayload(payload), initialRequestN, isCompleted, responderStream)
