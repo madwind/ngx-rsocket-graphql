@@ -21,10 +21,8 @@ export const rsocketCreator = (url: string | URL, {
   websocket = new WebSocket(url)
   const originalSend = websocket.send
   let resumeTimeout: number
-  console.log('new')
   websocket.send = (data) => {
-    //@ts-ignore
-    let frame = deserializeFrame(data);
+    let frame = deserializeFrame(data as Buffer);
     if (frame.type === FrameTypes.RESUME) {
       resumeTimeout = window.setTimeout(onResumeReject, 5000)
     }
@@ -46,7 +44,6 @@ export const rsocketCreator = (url: string | URL, {
         switch (frame.code) {
           case ErrorCodes.REJECTED_SETUP:
             window.clearTimeout(resumeTimeout)
-            console.log('reject_setup')
             onRejectSetup()
             break
           case ErrorCodes.REJECTED_RESUME:
