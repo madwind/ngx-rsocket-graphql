@@ -1,6 +1,6 @@
 import {DocumentNode} from "graphql/language";
 import {MutationDocumentNode, QueryDocumentNode, SubscriptionDocumentNode} from "./graphql.type";
-import {Payload} from "rsocket-core";
+import {Payload} from "@rsocket/core";
 
 enum Operation {
   QUERY = 'query',

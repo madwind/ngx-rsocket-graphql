@@ -1,5 +1,5 @@
-import {CompositeMetadata, decodeRoutes, WellKnownMimeType} from "rsocket-composite-metadata";
-import {Payload} from "rsocket-core";
+import {CompositeMetadata, decodeRoutes, WellKnownMimeType} from "@rsocket/composite-metadata";
+import {Payload} from "@rsocket/core";
 
 interface RouteHandle<T = undefined> {
   route: string,

@@ -1,4 +1,4 @@
-import {deserializeFrame, ErrorCodes, FrameTypes} from 'rsocket-core'
+import {deserializeFrame, ErrorCodes, FrameTypes} from '@rsocket/core'
 
 type Listener = {
   onSend: () => void

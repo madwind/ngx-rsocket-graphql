@@ -1,8 +1,8 @@
 import {BehaviorSubject, defer, first, map, ReplaySubject, retry} from "rxjs";
-import {ErrorCodes, Payload, RSocket, RSocketConnector, RSocketError} from "rsocket-core";
-import {encodeAndAddWellKnownMetadata, encodeRoute, WellKnownMimeType} from "rsocket-composite-metadata";
+import {ErrorCodes, Payload, RSocket, RSocketConnector, RSocketError} from "@rsocket/core";
+import {encodeAndAddWellKnownMetadata, encodeRoute, WellKnownMimeType} from "@rsocket/composite-metadata";
 import {RsocketConfig} from "./rsocket-config";
-import {WebsocketClientTransport} from "rsocket-websocket-client";
+import {WebsocketClientTransport} from "@rsocket/websocket-client";
 import {
   Auth,
   ChannelParam,

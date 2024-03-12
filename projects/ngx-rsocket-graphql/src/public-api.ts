@@ -3,7 +3,7 @@
  */
 import {RsocketConfig} from "./lib/rsocket/rsocket-config";
 
-import {Cancellable, ErrorCodes, OnExtensionSubscriber, Requestable, RSocketError} from "rsocket-core";
+import {Cancellable, ErrorCodes, OnExtensionSubscriber, Requestable, RSocketError} from "@rsocket/core";
 
 import {Buffer} from "buffer";
 

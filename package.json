@@ -38,8 +38,8 @@
     "buffer": "^6.0.3",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
-    "rsocket-composite-metadata": "^1.0.0-alpha.3",
-    "rsocket-core": "^1.0.0-alpha.3",
-    "rsocket-websocket-client": "^1.0.0-alpha.3"
+    "@rsocket/composite-metadata": "^1.0.0-alpha.3",
+    "@rsocket/core": "^1.0.0-alpha.3",
+    "@rsocket/websocket-client": "^1.0.0-alpha.3"
   }
 }

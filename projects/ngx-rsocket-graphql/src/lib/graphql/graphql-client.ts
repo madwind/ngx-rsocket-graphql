@@ -1,4 +1,4 @@
-import {Payload} from "rsocket-core";
+import {Payload} from "@rsocket/core";
 import {print} from "graphql/index";
 import {RsocketClient} from "../rsocket/rsocket-client";
 import {BehaviorSubject, first, map, Observable, ReplaySubject, switchMap} from "rxjs";

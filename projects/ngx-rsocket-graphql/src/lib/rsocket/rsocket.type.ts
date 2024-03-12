@@ -1,4 +1,4 @@
-import {Cancellable, OnExtensionSubscriber, OnNextSubscriber, OnTerminalSubscriber, Requestable} from "rsocket-core";
+import {Cancellable, OnExtensionSubscriber, OnNextSubscriber, OnTerminalSubscriber, Requestable} from "@rsocket/core";
 
 export enum ConnectionStatus {
   DISCONNECTED,

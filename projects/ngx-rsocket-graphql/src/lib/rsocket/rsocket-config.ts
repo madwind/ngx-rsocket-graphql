@@ -1,4 +1,4 @@
-import {ConnectorConfig} from "rsocket-core";
+import {ConnectorConfig} from "@rsocket/core";
 
 import {
   encodeBearerAuthMetadata,
@@ -6,7 +6,7 @@ import {
   encodeRoute,
   encodeSimpleAuthMetadata,
   WellKnownMimeType
-} from "rsocket-composite-metadata";
+} from "@rsocket/composite-metadata";
 import {Auth} from "./rsocket.type";
 import {Buffer} from "buffer";
 

@@ -1,7 +1,7 @@
 import {Observable} from "rxjs";
 import {DocumentNode} from "graphql/language";
 import {StreamRequester} from "../../public-api";
-import {Payload} from "rsocket-core";
+import {Payload} from "@rsocket/core";
 
 export type GraphqlSubscribe<T> = {
   result: Observable<T>,
